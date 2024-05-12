@@ -1,0 +1,43 @@
+import time
+from selenium import webdriver
+from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
+
+# Set up WebDriver
+driver = webdriver.Safari('/System/Cryptexes/App/usr/bin/safaridriver')
+
+# Navigate to HKPL login page
+driver.get('https://www.hkpl.gov.hk')
+wait = WebDriverWait(driver, 10)
+
+# Find the login form elements and enter your credentials
+username = driver.find_element(by='id', value='acc-box')
+password = driver.find_element(by='id', value='pass-box')
+username.send_keys('name')
+password.send_keys('pass')
+
+# Submit the form
+button = driver.find_element(By.CSS_SELECTOR, "img[alt='Login']")
+driver.execute_script("arguments[0].click();", button)
+
+# Wait for the page to load after login
+wait.until(EC.presence_of_element_located((By.ID, "checkout")))
+time.sleep(3)  # Add a short delay to ensure the page is fully loaded
+
+# Get the page source after login
+page_source = driver.page_source
+print(page_source)
+
+# Parse the HTML
+soup = BeautifulSoup(page_source, 'html.parser')
+
+book_elements = driver.find_elements(By.CLASS_NAME, "table")
+for book_element in book_elements:
+    print(book_element.text)
+
+# Close the WebDriver
+driver.quit()
